@@ -8,6 +8,7 @@ import (
 	"gorm.io/gorm"
 	"log"
 	"os"
+	"time"
 )
 
 const host = "127.0.0.1"
@@ -30,17 +31,17 @@ func main() {
 		userRepository := repository.NewMySqlRepository(db)
 		userService := service.NewUserService(userRepository)
 
-		//user := model.User{
-		//	DocumentTypeID: 1,
-		//	Document: "1018408447",
-		//	LastName: "Cortés",
-		//	SurName: "Plazas",
-		//	Name: "Diego",
-		//	OtherNames: "Fernando",
-		//	Birthday: time.Date(1987, 1, 19, 0,0,0,0, time.UTC),
-		//	Sex: "M",
-		//	Active: true,
-		//}
+		user := model.User{
+			DocumentTypeID: 1,
+			Document: "1018408447",
+			LastName: "Cortés",
+			SurName: "Plazas",
+			Name: "Diego",
+			OtherNames: "Fernando",
+			Birthday: time.Date(1987, 1, 19, 0,0,0,0, time.UTC),
+			Sex: "M",
+			Active: true,
+		}
 
 		user, err := userService.FindByDocument(1, "101840447")
 
