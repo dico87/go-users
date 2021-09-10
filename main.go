@@ -1,14 +1,16 @@
 package main
 
 import (
+	user2 "github.com/dico87/users/api/handlers/user"
+	"github.com/dico87/users/api/routes"
 	"github.com/dico87/users/model"
 	"github.com/dico87/users/repository"
 	"github.com/dico87/users/service"
+	echo2 "github.com/labstack/echo/v4"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"log"
 	"os"
-	"time"
 )
 
 const host = "127.0.0.1"
@@ -18,7 +20,7 @@ const user = "root"
 const password = "12345"
 
 func main() {
-	url := user + ":" + password + "@tcp("+host+":"+port+")/"+dbName+"?charset=utf8&parseTime=True"
+	url := user + ":" + password + "@tcp(" + host + ":" + port + ")/" + dbName + "?charset=utf8&parseTime=True"
 
 	db, err := gorm.Open(mysql.Open(url), &gorm.Config{})
 
@@ -31,24 +33,14 @@ func main() {
 		userRepository := repository.NewMySqlRepository(db)
 		userService := service.NewUserService(userRepository)
 
-		user := model.User{
-			DocumentTypeID: 1,
-			Document: "1018408447",
-			LastName: "Cortés",
-			SurName: "Plazas",
-			Name: "Diego",
-			OtherNames: "Fernando",
-			Birthday: time.Date(1987, 1, 19, 0,0,0,0, time.UTC),
-			Sex: "M",
-			Active: true,
-		}
+		echo := echo2.New()
+		handler := user2.NewUserHandler(userService)
 
-		user, err := userService.FindByDocument(1, "101840447")
+		routes.InitRoutes(echo, handler)
 
+		err := echo.Start(":9090")
 		if err != nil {
-			log.Fatal(err)
+			log.Fatal(err.Error())
 		}
-
-		log.Println(user)
 	}
 }

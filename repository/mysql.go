@@ -15,7 +15,6 @@ type MySqlRepository struct {
 	db *gorm.DB
 }
 
-
 func (repo MySqlRepository) Create(user model.User) (model.User, error) {
 	db := repo.db.Create(&user)
 	return user, db.Error
@@ -28,12 +27,12 @@ func (repo MySqlRepository) Update(user model.User) (model.User, error) {
 
 func (repo MySqlRepository) FindById(id uint) (model.User, error) {
 	user := model.User{}
-	db := repo.db.Take(&user, id)
+	db := repo.db.Preload("DocumentType").Find(&user, id)
 	return user, db.Error
 }
 
 func (repo MySqlRepository) FindByDocument(documentTypeID uint, document string) (model.User, error) {
 	user := model.User{}
-	db := repo.db.Where(&model.User{DocumentTypeID: documentTypeID, Document: document}).First(&user)
+	db := repo.db.Preload("DocumentType").Where(&model.User{DocumentTypeID: documentTypeID, Document: document}).First(&user)
 	return user, db.Error
 }

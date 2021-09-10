@@ -7,6 +7,8 @@ import (
 	"gorm.io/gorm"
 )
 
+var ErrNotFoundRecord error = errors.New("Not found record")
+
 type UserService interface {
 	Create(user model.User) (model.User, error)
 	Update(id uint, user model.User) (model.User, error)
@@ -42,7 +44,7 @@ func (service UserServiceImpl) Create(user model.User) (model.User, error) {
 	return model.User{}, errors.New("user already exists")
 }
 
-func(service UserServiceImpl) Update(id uint, user model.User) (model.User, error) {
+func (service UserServiceImpl) Update(id uint, user model.User) (model.User, error) {
 	_, err := service.repository.FindById(id)
 
 	if err != nil {
@@ -61,9 +63,27 @@ func(service UserServiceImpl) Update(id uint, user model.User) (model.User, erro
 }
 
 func (service UserServiceImpl) FindById(id uint) (model.User, error) {
-	return service.repository.FindById(id)
+	foundUser, err := service.repository.FindById(id)
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return model.User{}, ErrNotFoundRecord
+		}
+
+		return model.User{}, err
+	}
+
+	return foundUser, nil
 }
 
 func (service UserServiceImpl) FindByDocument(documentTypeID uint, document string) (model.User, error) {
-	return service.repository.FindByDocument(documentTypeID, document)
+	foundUser, err := service.repository.FindByDocument(documentTypeID, document)
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return model.User{}, ErrNotFoundRecord
+		}
+
+		return model.User{}, err
+	}
+
+	return foundUser, nil
 }
