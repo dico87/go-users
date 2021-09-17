@@ -1,27 +1,28 @@
-package user
+package infrastructure
 
 import (
-	"github.com/dico87/users/model"
-	"github.com/dico87/users/service"
+	"github.com/dico87/users/internal/common"
+	"github.com/dico87/users/internal/users/application"
+	"github.com/dico87/users/internal/users/domain"
 	"github.com/labstack/echo/v4"
 	"net/http"
 	"strconv"
 )
 
 type Handler struct {
-	service service.UserService
+	service application.Service
 }
 
-func NewUserHandler(service service.UserService) Handler {
+func New(service application.Service) Handler {
 	return Handler{
 		service: service,
 	}
 }
 
 func (h Handler) Create(context echo.Context) error {
-	user := model.User{}
-	if err := context.Bind(user); err != nil {
-		return err
+	user := domain.User{}
+	if err := context.Bind(&user); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "Invalid body request")
 	}
 
 	createdUser, err := h.service.Create(user)
@@ -30,7 +31,11 @@ func (h Handler) Create(context echo.Context) error {
 		return err
 	}
 
-	context.JSON(http.StatusOK, createdUser)
+	err = context.JSON(http.StatusOK, createdUser)
+
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
@@ -41,8 +46,8 @@ func (h Handler) Update(context echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "Invalid id parameter")
 	}
 
-	user := model.User{}
-	if err := context.Bind(user); err != nil {
+	user := domain.User{}
+	if err := context.Bind(&user); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Invalid body request")
 	}
 
@@ -52,7 +57,11 @@ func (h Handler) Update(context echo.Context) error {
 		return err
 	}
 
-	context.JSON(http.StatusOK, updatedUser)
+	err = context.JSON(http.StatusOK, updatedUser)
+
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
@@ -66,13 +75,17 @@ func (h Handler) FindById(context echo.Context) error {
 	foundUser, err := h.service.FindById(uint(id))
 
 	if err != nil {
-		if err == service.ErrNotFoundRecord {
+		if err == common.ErrNotFoundRecord {
 			return echo.NewHTTPError(http.StatusNotFound, "Id not found")
 		}
 		return err
 	}
 
-	context.JSON(http.StatusOK, foundUser)
+	err = context.JSON(http.StatusOK, foundUser)
+
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
@@ -87,13 +100,17 @@ func (h Handler) FindByDocument(context echo.Context) error {
 	foundUser, err := h.service.FindByDocument(uint(documentTypeId), document)
 
 	if err != nil {
-		if err == service.ErrNotFoundRecord {
+		if err == common.ErrNotFoundRecord {
 			return echo.NewHTTPError(http.StatusNotFound, "Id not found")
 		}
 		return err
 	}
 
-	context.JSON(http.StatusOK, foundUser)
+	err = context.JSON(http.StatusOK, foundUser)
+
+	if err != nil {
+		return err
+	}
 
 	return nil
 }

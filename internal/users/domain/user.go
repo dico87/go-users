@@ -1,12 +1,11 @@
-package model
+package domain
 
 import (
-	"gorm.io/gorm"
 	"time"
 )
 
 type User struct {
-	gorm.Model
+	ID             uint         `json:"id"`
 	DocumentTypeID uint         `json:"document_type_id"`
 	DocumentType   DocumentType `json:"document_type"`
 	Document       string       `json:"document"`
@@ -21,7 +20,7 @@ type User struct {
 }
 
 type DocumentType struct {
-	gorm.Model
+	ID          uint   `json:"id"`
 	Code        string `json:"code"`
 	Description string `json:"description"`
 }
